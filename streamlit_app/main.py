@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 import tensorflow as tf
 import numpy as np
-import cv2
 import os
 
 from utils import preprocess_image
@@ -17,7 +16,7 @@ def load_model():
 
 model = load_model()
 
-st.title('Image Classification App')
+st.title('Animal Faces Classification')
 
 # State 1: Upload image or take one with the camera
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
@@ -27,18 +26,17 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.write("Classifying...")    
     
-    # Preprocess the image to fit your model's input requirements
-    processed_image = preprocess_image(image, target_size=(128, 128))  # Modify this line based on your model
+    # Resize
+    processed_image = preprocess_image(image, target_size=(256, 256))  # Modify this line based on your model
 
     # Predict the class
     prediction = model.predict(processed_image)
 
-    print(prediction)
     scores = tf.nn.softmax(prediction[0])  # Assuming a softmax final layer
-    print(scores)
 
     # Get the highest probability class
     predicted_class = np.argmax(scores, axis=0)
     probability = np.max(scores)
 
-    st.image(image, caption=f'{animals[predicted_class]} {probability*100:.2f}%', use_column_width=True)
+    st.image(image, use_column_width=True)
+    st.header(f'{animals[predicted_class]} {probability*100:.2f}%', anchor='center')
